@@ -18,13 +18,17 @@
 		// this is to keep from overriding our "defaults" object.
 		var opts = $.extend({}, $.fn.ticker.defaults, options); 
 		
-		/* Get the id of the UL to get our news content from */
-		var newsID = '#' + $(this).attr('id');
-
-		/* Get the tag type - we will check this later to makde sure it is a UL tag */
-		var tagType = $(this).get(0).tagName; 	
 
 		return this.each(function() { 
+			/* Get the id of the UL to get our news content from */
+			var newsID = '#' + $(this).attr('id');
+
+			/* Get Parent Id for use in creating unique content ids */
+			var parentID = '#' + $(this).parent().attr('id');
+
+			/* Get the tag type - we will check this later to makde sure it is a UL tag */
+			var tagType = $(this).get(0).tagName; 	
+
 			/* Internal vars */
 			var settings = {				
 				position: 0,
@@ -35,17 +39,18 @@
 				paused: false,
 				contentLoaded: false,
 				dom: {
-					contentID: '#ticker-content',
-					titleID: '#ticker-title',
-					titleElem: '#ticker-title SPAN',
-					tickerID : '#ticker',
-					wrapperID: '#ticker-wrapper',
-					revealID: '#ticker-swipe',
-					revealElem: '#ticker-swipe SPAN',
-					controlsID: '#ticker-controls',
-					prevID: '#prev',
-					nextID: '#next',
-					playPauseID: '#play-pause'
+					contentID: newsID +'-ticker-content',
+					titleID: newsID +'-ticker-title',
+					titleElem: newsID +'-ticker-title SPAN',
+					tickerID : newsID +'-ticker',
+					wrapperID: parentID,
+					revealID: newsID +'-ticker-swipe',
+					revealElem: newsID +'-ticker-swipe SPAN',
+					controlsID: newsID +'-ticker-controls',
+					prevID: newsID +'-prev',
+					nextID: newsID +'-next',
+					playPauseID: newsID +'-play-pause',
+					reloadID: newsID +'-reload'
 				}
 			};
 
@@ -84,7 +89,7 @@
 			/* Function to setup the page */
 			function initialisePage() {
 				// add our HTML structure for the ticker to the DOM
-				$(settings.dom.wrapperID).append('<div id="' + settings.dom.tickerID.replace('#', '') + '"><div id="' + settings.dom.titleID.replace('#', '') + '"><span><!-- --></span></div><p id="' + settings.dom.contentID.replace('#', '') + '"></p><div id="' + settings.dom.revealID.replace('#', '') + '"><span><!-- --></span></div></div>');
+				$(settings.dom.wrapperID).append('<div id="' + settings.dom.tickerID.replace('#', '') + '" class="ticker"><div id="' + settings.dom.titleID.replace('#', '') + '"  class="ticker-title"><span><!-- --></span></div><p id="' + settings.dom.contentID.replace('#', '') + '" class="ticker-content"></p><div id="' + settings.dom.revealID.replace('#', '') + '" class="ticker-swipe"><span><!-- --></span></div></div>');
 				$(settings.dom.wrapperID).removeClass('no-js').addClass('has-js ' + opts.direction);
 				// hide the ticker
 				$(settings.dom.tickerElem + ',' + settings.dom.contentID).hide();
@@ -95,6 +100,10 @@
 						var button = e.target.id;
 						if (e.type == 'click') {	
 							switch (button) {
+								case settings.dom.reloadID.replace('#', ''):
+									settings.contentLoaded = false;
+									processContent();
+									break;
 								case settings.dom.prevID.replace('#', ''):
 									// show previous item
 									settings.paused = true;
@@ -136,7 +145,7 @@
 						}
 					});
 					// add controls HTML to DOM
-					$(settings.dom.wrapperID).append('<ul id="' + settings.dom.controlsID.replace('#', '') + '"><li id="' + settings.dom.playPauseID.replace('#', '') + '" class="controls"></li><li id="' + settings.dom.prevID.replace('#', '') + '" class="controls"></li><li id="' + settings.dom.nextID.replace('#', '') + '" class="controls"></li></ul>');
+					$(settings.dom.wrapperID).append('<ul id="' + settings.dom.controlsID.replace('#', '') + '" class="controls-wrapper"><li id="' + settings.dom.playPauseID.replace('#', '') + '" class="controls"></li><li id="' + settings.dom.prevID.replace('#', '') + '" class="controls"></li><li id="' + settings.dom.nextID.replace('#', '') + '" class="controls"></li><li id="' + settings.dom.reloadID.replace('#', '') + '" class="controls"></li></ul>');
 				}
 				if (opts.displayType != 'fade') {
                 		// add mouse over on the content
