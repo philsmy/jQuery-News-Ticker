@@ -101,8 +101,12 @@
 						if (e.type == 'click') {	
 							switch (button) {
 								case settings.dom.reloadID.replace('#', ''):
+									settings.paused = true;
+									pauseTicker();
 									settings.contentLoaded = false;
 									processContent();
+									settings.paused = false;
+									restartTicker();
 									break;
 								case settings.dom.prevID.replace('#', ''):
 									// show previous item
@@ -223,6 +227,8 @@
 					}
 					else if (opts.htmlFeed) { 
 						if($(newsID + ' LI').length > 0) {
+							settings.position = 0;
+							settings.newsArr = {};
 							$(newsID + ' LI').each(function (i) {
 								// maybe this could be one whole object and not an array of objects?
 								settings.newsArr['item-' + i] = { type: opts.titleText, content: $(this).html()};
@@ -270,7 +276,7 @@
 			function revealContent() {
 				if(settings.play) {	
 					// get the width of the title element to offset the content and reveal
-					var offset = $(settings.dom.titleElem).width() + 20;
+					var offset = $(settings.dom.titleID).width() + 20;
 					$(settings.dom.revealID).css(opts.direction, offset + 'px');
 					// show the reveal element and start the animation
 					if (opts.displayType == 'fade') {
@@ -283,13 +289,18 @@
 						// to code
 					}
 					else {
-						// default bbc scroll effect
-						$(settings.dom.revealElem).show(0, function () {
+						if (countSize(settings.newsArr) == 1) {
+							$(settings.dom.revealElem).show();
 							$(settings.dom.contentID).css(opts.direction, offset + 'px').show();
-							// set our animation direction
-							animationAction = opts.direction == 'right' ? { marginRight: distance + 'px'} : { marginLeft: distance + 'px' };
-							$(settings.dom.revealID).css('margin-' + opts.direction, '0px').delay(20).animate(animationAction, time, 'linear', postReveal);
-						});		
+						} else {
+							// default bbc scroll effect
+							$(settings.dom.revealElem).show(0, function () {
+								$(settings.dom.contentID).css(opts.direction, offset + 'px').show();
+								// set our animation direction
+								animationAction = opts.direction == 'right' ? { marginRight: distance + 'px'} : { marginLeft: distance + 'px' };
+								$(settings.dom.revealID).css('margin-' + opts.direction, '0px').delay(20).animate(animationAction, time, 'linear', postReveal);
+							});		
+						};
 					}
 				}
 				else {
